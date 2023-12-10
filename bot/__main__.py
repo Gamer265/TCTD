@@ -61,7 +61,7 @@ async def starters(event):
             [Button.text("☎️ Contact Us", resize=True)]
         ]
     await event.reply(
-        await get_start_msg(),
+        await get_start_msg(client),
         buttons=buttons,
         link_preview=False,
     )
@@ -248,7 +248,7 @@ async def approver(event):
     with contextlib.suppress(UserIsBlockedError, PeerIdInvalidError):
         await client.send_message(
             event.user_id,
-            await get_wlcm_msg(),
+            await get_wlcm_msg(client),
             buttons=[Button.text("☎️ Contact Us", resize=True)],
         )
         await add_user(event.user_id)
