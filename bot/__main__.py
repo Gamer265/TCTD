@@ -169,9 +169,10 @@ async def all_func(event):
                     "Send the new welcome message you want to be sent to a user when he is approved into your channel.",
                 )
                 msg = await conv.get_response()
-                if not msg.text:
-                    return await event.reply("You can only set a text message!")
-                await set_wlcm_msg(msg.text)
+                if not msg:
+                    return await event.reply("You can only set a message!")
+                xcx = await client.send_message(DATABASE_CHANNEL, msg)
+                await set_wlcm_msg(xcx.id)
                 await conv.send_message(f"Welcome message has been changed successfully!")
         except TimeoutError:
             pass
@@ -184,9 +185,10 @@ async def all_func(event):
                     "Send the new Bot Start message.",
                 )
                 msg = await conv.get_response()
-                if not msg.text:
-                    return await event.reply("You can only set a text message!")
-                await set_start_msg(msg.text)
+                if not msg:
+                    return await event.reply("You can only set a message!")
+                xcx = await client.send_message(DATABASE_CHANNEL, msg)
+                await set_start_msg(xcx.id)
                 await conv.send_message(f"Start message has been changed successfully!")
         except TimeoutError:
             pass

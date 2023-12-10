@@ -18,17 +18,27 @@ async def rem_user(id):
 async def get_users():
     return eval((await db.get("BOARDCAST_USERS")) or "[]")
 
-async def get_start_msg():
-    msg = await db.get("START_MSG")
-    if msg:
-        return msg
+async def get_start_msg(client: TelegramClient):
+    id_ = await db.get("START_MSG")
+    if id_:
+        try:
+            msg = await client.get_messages(DATABASE_CHANNEL, ids=eval(id_))
+            if msg:
+                return msg
+        except:
+            return "Hi"
     return "Hi"
 
 
-async def get_wlcm_msg():
-    msg = await db.get("WELCOME_MSG")
-    if msg:
-        return msg
+async def get_wlcm_msg(client):
+    id_ = await db.get("WELCOME_MSG")
+    if id_:
+        try:
+            msg = await client.get_messages(DATABASE_CHANNEL, ids=eval(id_))
+            if msg:
+                return msg
+        except:
+            return "Welcome"
     return "Welcome"
 
 
@@ -36,12 +46,12 @@ async def get_chat_list():
     return ((await db.get("CHAT_LIST")) or "").split() or []
 
 
-async def set_start_msg(msg):
-    await db.set("START_MSG", msg)
+async def set_start_msg(id):
+    await db.set("START_MSG", str(id))
 
 
-async def set_wlcm_msg(msg):
-    await db.set("WELCOME_MSG", msg)
+async def set_wlcm_msg(id):
+    await db.set("WELCOME_MSG", str(id))
 
 
 async def set_chat_list(chat):

@@ -11,6 +11,7 @@ try:
     REDISPORT = config("REDISPORT", default=None)
     REDISUSER = config("REDISUSER", default=None)
     ADMINS = [int(i) for i in config("ADMINS").split()]
+    DATABASE_CHANNEL = config("DATABASE_CHANNEL", cast=int)
 except BaseException:
     print(format_exc())
     exit()
