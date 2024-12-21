@@ -108,6 +108,8 @@ async def all_func(event):
                     "Send Chat Username or Id\n__make sure bot is admin there__"
                 )
                 res = await conv.get_response()
+                if res.text and res.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 try:
                     chat = int(res.text)
                 except BaseException:
@@ -148,6 +150,8 @@ async def all_func(event):
             async with client.conversation(event.sender_id, timeout=2000) as conv:
                 await conv.send_message("Give Chat Username or Id To remove from List.")
                 res = await conv.get_response()
+                if res.text and res.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 try:
                     chat = int(res.text)
                 except BaseException:
@@ -171,6 +175,8 @@ async def all_func(event):
                 msg = await conv.get_response()
                 if not msg:
                     return await event.reply("You can only set a message!")
+                if msg.text and msg.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 xcx = await client.send_message(DATABASE_CHANNEL, msg)
                 await set_wlcm_msg(xcx.id)
                 await conv.send_message(f"Welcome message has been changed successfully!")
@@ -187,6 +193,8 @@ async def all_func(event):
                 msg = await conv.get_response()
                 if not msg:
                     return await event.reply("You can only set a message!")
+                if msg.text and msg.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 xcx = await client.send_message(DATABASE_CHANNEL, msg)
                 await set_start_msg(xcx.id)
                 await conv.send_message(f"Start message has been changed successfully!")
@@ -203,18 +211,24 @@ async def all_func(event):
                 tg_link = await conv.get_response()
                 if not tg_link.text:
                     return await event.reply("You can only set a text message!")
+                if tg_link.text and tg_link.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 await conv.send_message(
                     "Send Youtube Link",
                 )
                 yt_link = await conv.get_response()
                 if not yt_link.text:
                     return await event.reply("You can only set a text message!")
+                if yt_link.text and yt_link.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 await conv.send_message(
                     "Send WhatsApp Link",
                 )
                 wa_link = await conv.get_response()
                 if not wa_link.text:
                     return await event.reply("You can only set a text message!")
+                if wa_link.text and wa_link.text.startswith("/cancel"):
+                    return await event.reply("Process cancelled", buttons=BTN)
                 data = {"tg_link": tg_link.text, "yt_link": yt_link.text, "wa_link": wa_link.text}
                 await db.set("CONTACTS", str(data))
                 await conv.send_message("Succesfully Added Contact Details.")
