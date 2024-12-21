@@ -120,7 +120,24 @@ async def all_func(event):
                     return await conv.send_message("Added Successfully.")
                 except Exception as err:
                     await conv.send_message(str(err))
-                    return await conv.send_message("Wrong Username/id")
+                    await conv.send_message("Wrong Username/id")
+                    await conv.send_message(
+                    "Send Chat Username or Id\n__make sure bot is admin there__"
+                    )
+                    res = await conv.get_response()
+                    if res.text and res.text.startswith("/cancel"):
+                        return await event.reply("Process cancelled", buttons=BTN)
+                    try:
+                        chat = int(res.text)
+                    except BaseException:
+                        chat = res.text.strip().split("/")[-1]
+                    try:
+                        chat = await client.get_entity(chat)
+                        await set_chat_list(str(chat.id))
+                        return await conv.send_message("Added Successfully.")
+                    except Exception as err:
+                        await conv.send_message(str(err))
+                        return await conv.send_message("Wrong Username/id")
         except TimeoutError:
             pass
     elif event.text == "List of Chats In Mangment":
@@ -161,7 +178,21 @@ async def all_func(event):
                     await rem_chat_list(str(chat.id))
                     return await conv.send_message("Removed Successfully.")
                 except BaseException:
-                    return await conv.send_message("Wrong Username/id")
+                    await conv.send_message("Wrong Username/id")
+                    await conv.send_message("Give Chat Username or Id To remove from List.")
+                    res = await conv.get_response()
+                    if res.text and res.text.startswith("/cancel"):
+                        return await event.reply("Process cancelled", buttons=BTN)
+                    try:
+                        chat = int(res.text)
+                    except BaseException:
+                        chat = res.text.strip().split("/")[-1]
+                    try:
+                        chat = await client.get_entity(chat)
+                        await rem_chat_list(str(chat.id))
+                        return await conv.send_message("Removed Successfully.")
+                    except BaseException:
+                        return await conv.send_message("Wrong Username/id")
         except TimeoutError:
             pass
     elif event.text == "Change Chat Welcome Msg":
@@ -174,7 +205,13 @@ async def all_func(event):
                 )
                 msg = await conv.get_response()
                 if not msg:
-                    return await event.reply("You can only set a message!")
+                    await event.reply("You can only set a message!")
+                    await conv.send_message(
+                    "Send the new welcome message you want to be sent to a user when he is approved into your channel.",
+                    )
+                    msg = await conv.get_response()
+                    if not msg:
+                        return await event.reply("You can only set a message!")
                 if msg.text and msg.text.startswith("/cancel"):
                     return await event.reply("Process cancelled", buttons=BTN)
                 xcx = await client.send_message(DATABASE_CHANNEL, msg)
@@ -192,7 +229,13 @@ async def all_func(event):
                 )
                 msg = await conv.get_response()
                 if not msg:
-                    return await event.reply("You can only set a message!")
+                    await event.reply("You can only set a message!")
+                    await conv.send_message(
+                    "Send the new Bot Start message.",
+                    )
+                    msg = await conv.get_response()
+                    if not msg:
+                        return await event.reply("You can only set a message!")
                 if msg.text and msg.text.startswith("/cancel"):
                     return await event.reply("Process cancelled", buttons=BTN)
                 xcx = await client.send_message(DATABASE_CHANNEL, msg)
