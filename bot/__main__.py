@@ -225,7 +225,7 @@ async def all_func(event):
         try:
             async with client.conversation(event.sender_id, timeout=2000) as conv:
                 await conv.send_message(
-                    "Send the new Bot Start message.\n\n(Press /Cancel to abort.",
+                    "Send the new Bot Start message.\n\n(Press /cancel to abort)",
                 )
                 msg = await conv.get_response()
                 if not msg:
