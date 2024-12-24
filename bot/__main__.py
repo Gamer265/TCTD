@@ -105,7 +105,7 @@ async def all_func(event):
         try:
             async with client.conversation(event.sender_id, timeout=2000) as conv:
                 await conv.send_message(
-                    "Send Chat Username or Id\n__make sure bot is admin there__"
+                    "Send Chat Username or Id\n__make sure bot is admin there__)"
                 )
                 res = await conv.get_response()
                 if res.text and res.text.startswith("/cancel"):
@@ -225,7 +225,7 @@ async def all_func(event):
         try:
             async with client.conversation(event.sender_id, timeout=2000) as conv:
                 await conv.send_message(
-                    "Send the new Bot Start message.",
+                    "Send the new Bot Start message.\n\n(Press /Cancel to abort.",
                 )
                 msg = await conv.get_response()
                 if not msg:
