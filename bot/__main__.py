@@ -85,7 +85,7 @@ async def all_func(event):
             re_repl = await reply
             if re_repl.text and re_repl.text.startswith("Cancel"):
                 return await repl.reply("Broadcast cancel", buttons=BTN)
-        sent = await repl.reply("Broadcasting msg...", buttons=BTN)
+        sent = await repl.reply("🚀 Broadcasting Messages Started...\nStatus will be updated soon.", buttons=BTN)
         done, er = 0, 0
         for user in users:
             try:
@@ -98,7 +98,8 @@ async def all_func(event):
             except BaseException as ex:
                 er += 1
                 print(str(ex))
-        await event.reply(f"Broadcast Completed To {done} users\n[Error in {er} users]")
+        await event.reply(
+    f"✅ Broadcast Completed!\n\nNo. of Users Broadcasted: {done}\nNo. of Errors: {er}")
     elif event.text == "Add Chats For Mangment":
         if event.sender_id not in ADMINS:
             return
