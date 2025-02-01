@@ -85,7 +85,7 @@ async def all_func(event):
             re_repl = await reply
             if re_repl.text and re_repl.text.startswith("Cancel"):
                 return await repl.reply("Broadcast cancel", buttons=BTN)
-        sent = await repl.reply("🚀 Broadcasting Messages Started...\nStatus will be updated soon.", buttons=BTN)
+        sent = await repl.reply("🚀 Broadcasting Messages Started...\n\nStatus will be updated soon.", buttons=BTN)
         done, er = 0, 0
         for user in users:
             try:
