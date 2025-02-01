@@ -98,7 +98,11 @@ async def all_func(event):
             except BaseException as ex:
                 er += 1
                 print(str(ex))
-        await sent.edit(f"Broadcast Completed To {done} users\n[Error in {er} users]")
+        try:
+            await sent.edit(f"Broadcast Completed To {done} users\n[Error in {er} users]")
+        except telethon.errors.rpcerrorlist.MessageIdInvalidError as e:
+            print("Failed to edit broadcast status message:", e)
+            await event.reply(f"Broadcast Completed To {done} users\n[Error in {er} users]")
     elif event.text == "Add Chats For Mangment":
         if event.sender_id not in ADMINS:
             return
