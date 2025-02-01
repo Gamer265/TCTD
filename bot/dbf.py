@@ -70,3 +70,6 @@ async def rem_chat_list(chat):
         await db.set("CHAT_LIST", " ".join(chats))
         return True
     return False
+
+#@Gamer_4560
+
