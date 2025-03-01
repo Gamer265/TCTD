@@ -1,5 +1,5 @@
 import contextlib
-
+import asyncio
 from .dbf import *
 from telethon import Button, events
 from telethon.errors.rpcerrorlist import (
@@ -315,5 +315,31 @@ async def approver(event):
             HideChatJoinRequestRequest(approved=True, peer=chat, user_id=event.user_id)
         )
 
+@client.on(events.NewMessage(incoming=True, pattern="/remove_dead"))
+async def remove_dead_users_handler(event):
+    # Only allow admins to run this command.
+    if event.sender_id not in ADMINS:
+        return
+
+    # Fetch the list of user IDs from the database.
+    users = await get_users()
+    removed_count = 0
+
+    # Inform the admin that the process has started.
+    status_msg = await event.reply("Scanning for dead users...")
+
+    for user in users:
+        try:
+            # Send a lightweight message ("Ping!") to check if the user is active.
+            await client.send_message(user, "Ping!")
+        except (UserIsBlockedError, PeerIdInvalidError):
+            # If the message fails, remove the user.
+            await rem_user(user)
+            removed_count += 1
+        # A short delay to avoid hitting API rate limits.
+        await asyncio.sleep(0.2)
+
+    # Inform the admin about the outcome.
+    await status_msg.edit(f"Removed {removed_count} dead users from the database.")
 
 client.run_until_disconnected()
