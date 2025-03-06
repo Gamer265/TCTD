@@ -11,7 +11,8 @@ from telethon.utils import get_peer_id
 from telethon.tl.functions.messages import HideChatJoinRequestRequest, HideAllChatJoinRequestsRequest
 from telethon.tl.types import UpdateBotChatInviteRequester
 from asyncio.exceptions import TimeoutError
-from telethon.tl.functions.messages import HideChatJoinRequestRequest
+from telethon.tl.types import ChannelParticipantsRecent
+from telethon.tl.functions.channels import GetChatJoinRequestsRequest, ApproveChatJoinRequestRequest
 
 
 async def start_bot(token: str) -> None:
@@ -345,36 +346,43 @@ async def remove_dead_users_handler(event):
 
 @client.on(events.NewMessage(incoming=True, pattern="/approve_pending"))
 async def approve_pending_requests(event):
-    # Only allow admins to run this command.
     if event.sender_id not in ADMINS:
         return
 
-    chats = await get_chat_list()  # Your managed chat list from dbf.py
+    chats = await get_chat_list()  # your managed chat IDs
     total_approved = 0
-
-    # Inform the admin that the process has started.
     status_msg = await event.reply("Scanning for pending join requests...")
 
     for chat in chats:
         try:
-            # Get the chat entity. Note: if your chat IDs are stored as strings, convert them as needed.
+            # Get the chat entity (ensure it is a channel or supergroup)
             entity = await client.get_entity(int(chat))
-            # Fetch pending join requests (ensure your Telethon version supports this)
-            pending_requests = await client.get_chat_join_requests(entity)
-            print(f"Chat {chat}: {len(pending_requests)} pending join requests found")
+            
+            # Use the raw API call to fetch join requests.
+            result = await client(GetChatJoinRequestsRequest(
+                channel=entity,
+                filter=ChannelParticipantsRecent(),  # a generic filter; adjust if needed
+                offset=0,
+                limit=100
+            ))
+            
+            pending_requests = result.requests
+            print(f"Chat {chat}: found {len(pending_requests)} pending requests")
+            
             for req in pending_requests:
                 try:
-                    # Approve the pending join request using HideChatJoinRequestRequest.
-                    await client(HideChatJoinRequestRequest(approved=True, peer=entity, user_id=req.user_id))
+                    # Approve each pending request. You may also try HideChatJoinRequestRequest.
+                    await client(ApproveChatJoinRequestRequest(
+                        channel=entity,
+                        user_id=req.user_id
+                    ))
                     total_approved += 1
-                    # Optional: add a short delay to avoid rate limits.
                     await asyncio.sleep(0.2)
                 except Exception as e:
-                    print(f"Error approving request for user {req.user_id}: {e}")
+                    print(f"Error approving user {req.user_id} in chat {chat}: {e}")
         except Exception as e:
             print(f"Error processing chat {chat}: {e}")
 
-    # Report back the total number of approved requests.
     await status_msg.edit(f"Approved {total_approved} pending join requests.")
 
 client.run_until_disconnected()
