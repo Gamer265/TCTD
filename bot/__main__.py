@@ -11,8 +11,8 @@ from telethon.utils import get_peer_id
 from telethon.tl.functions.messages import HideChatJoinRequestRequest, HideAllChatJoinRequestsRequest
 from telethon.tl.types import UpdateBotChatInviteRequester
 from asyncio.exceptions import TimeoutError
+from telethon.tl.functions.channels import GetJoinRequests, ApproveJoinRequest
 from telethon.tl.types import ChannelParticipantsRecent
-from telethon.tl.functions.channels import GetChatJoinRequestsRequest, ApproveChatJoinRequestRequest
 
 
 async def start_bot(token: str) -> None:
@@ -358,10 +358,10 @@ async def approve_pending_requests(event):
             # Get the chat entity (ensure it is a channel or supergroup)
             entity = await client.get_entity(int(chat))
             
-            # Use the raw API call to fetch join requests.
-            result = await client(GetChatJoinRequestsRequest(
+            # Use the new API call to fetch join requests.
+            result = await client(GetJoinRequests(
                 channel=entity,
-                filter=ChannelParticipantsRecent(),  # a generic filter; adjust if needed
+                filter=ChannelParticipantsRecent(),  # generic filter
                 offset=0,
                 limit=100
             ))
@@ -371,8 +371,8 @@ async def approve_pending_requests(event):
             
             for req in pending_requests:
                 try:
-                    # Approve each pending request. You may also try HideChatJoinRequestRequest.
-                    await client(ApproveChatJoinRequestRequest(
+                    # Approve each pending request.
+                    await client(ApproveJoinRequest(
                         channel=entity,
                         user_id=req.user_id
                     ))
