@@ -11,8 +11,6 @@ from telethon.utils import get_peer_id
 from telethon.tl.functions.messages import HideChatJoinRequestRequest, HideAllChatJoinRequestsRequest
 from telethon.tl.types import UpdateBotChatInviteRequester
 from asyncio.exceptions import TimeoutError
-from telethon.tl.functions.channels import GetJoinRequests, ApproveJoinRequest
-from telethon.tl.types import ChannelParticipantsRecent
 
 
 async def start_bot(token: str) -> None:
@@ -344,45 +342,25 @@ async def remove_dead_users_handler(event):
     # Inform the admin about the outcome.
     await status_msg.edit(f"Removed {removed_count} dead users from the database.")
 
-@client.on(events.NewMessage(incoming=True, pattern="/approve_pending"))
-async def approve_pending_requests(event):
+@client.on(events.NewMessage(incoming=True, pattern="/approve_all"))
+async def approve_all_requests(event):
     if event.sender_id not in ADMINS:
         return
 
-    chats = await get_chat_list()  # your managed chat IDs
-    total_approved = 0
-    status_msg = await event.reply("Scanning for pending join requests...")
+    chats = await get_chat_list()  # Your managed chat IDs from dbf.py
+    total_chats = 0
+
+    status_msg = await event.reply("Approving all pending join requests...")
 
     for chat in chats:
         try:
-            # Get the chat entity (ensure it is a channel or supergroup)
             entity = await client.get_entity(int(chat))
-            
-            # Use the new API call to fetch join requests.
-            result = await client(GetJoinRequests(
-                channel=entity,
-                filter=ChannelParticipantsRecent(),  # generic filter
-                offset=0,
-                limit=100
-            ))
-            
-            pending_requests = result.requests
-            print(f"Chat {chat}: found {len(pending_requests)} pending requests")
-            
-            for req in pending_requests:
-                try:
-                    # Approve each pending request.
-                    await client(ApproveJoinRequest(
-                        channel=entity,
-                        user_id=req.user_id
-                    ))
-                    total_approved += 1
-                    await asyncio.sleep(0.2)
-                except Exception as e:
-                    print(f"Error approving user {req.user_id} in chat {chat}: {e}")
+            # Hide (i.e. approve) all pending join requests in this chat
+            await client(HideAllChatJoinRequestsRequest(peer=entity))
+            total_chats += 1
+            await asyncio.sleep(0.2)  # Short delay to avoid rate limits
         except Exception as e:
             print(f"Error processing chat {chat}: {e}")
 
-    await status_msg.edit(f"Approved {total_approved} pending join requests.")
-
+    await status_msg.edit(f"Processed pending join requests in {total_chats} chats.")
 client.run_until_disconnected()
