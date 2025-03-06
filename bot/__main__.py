@@ -361,6 +361,7 @@ async def approve_pending_requests(event):
             entity = await client.get_entity(int(chat))
             # Fetch pending join requests (ensure your Telethon version supports this)
             pending_requests = await client.get_chat_join_requests(entity)
+            print(f"Chat {chat}: {len(pending_requests)} pending join requests found")
             for req in pending_requests:
                 try:
                     # Approve the pending join request using HideChatJoinRequestRequest.
